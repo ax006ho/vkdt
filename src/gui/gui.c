@@ -208,7 +208,7 @@ dt_gui_win_init_vk(dt_gui_win_t *win)
   QVKR(vkCreateDescriptorPool(qvk.device, &pool_info, 0, &win->descriptor_pool));
   return 0;
 }
-  
+
 int dt_gui_init()
 {
   memset(&vkdt, 0, sizeof(vkdt));
@@ -476,7 +476,7 @@ out:;
     .imageFormat           = win->surf_format.format,
     .imageColorSpace       = win->surf_format.colorSpace,
     .imageExtent           = extent,
-    .imageArrayLayers      = 1, /* only needs to be changed for stereoscopic rendering */ 
+    .imageArrayLayers      = 1, /* only needs to be changed for stereoscopic rendering */
     .imageUsage            = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT
                            | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
     .imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE, /* VK_SHARING_MODE_CONCURRENT if not using same queue */
@@ -689,7 +689,7 @@ dt_gui_win_render(struct nk_context *ctx, dt_gui_win_t *win)
   VkResult res = vkAcquireNextImageKHR(qvk.device, win->swap_chain, 2ul<<30, image_acquired_semaphore, VK_NULL_HANDLE, &win->frame_index);
   if(!(res == VK_SUCCESS || res == VK_TIMEOUT || res == VK_NOT_READY || res == VK_SUBOPTIMAL_KHR))
     return res;
-  
+
   const int i = win->frame_index;
   QVKR(vkWaitForFences(qvk.device, 1, win->fence+i, VK_TRUE, UINT64_MAX));    // wait indefinitely instead of periodically checking
   QVKR(vkResetFences(qvk.device, 1, win->fence+i));
@@ -716,7 +716,7 @@ dt_gui_win_render(struct nk_context *ctx, dt_gui_win_t *win)
 
   // submit command buffer
   vkCmdEndRenderPass(win->command_buffer[i]);
-  VkPipelineStageFlags wait_stage[] = { 
+  VkPipelineStageFlags wait_stage[] = {
     VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT|VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
     VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, };
   uint64_t value_wait  [] = { 0, };
@@ -976,6 +976,7 @@ dt_gui_write_favs(
 void
 dt_gui_read_tags()
 {
+  dt_log(s_log_gui, "%s", "entering dt_gui_read_tags");
   vkdt.tag_cnt = 0;
   uint64_t time[sizeof(vkdt.tag)/sizeof(vkdt.tag[0])];
   char filename[PATH_MAX+10];
@@ -985,16 +986,26 @@ dt_gui_read_tags()
   struct dirent *ep;
   while((ep = readdir(dir)))
   {
+    dt_log(s_log_gui, "filename: >%s<", filename);
     if(fs_isdir(filename, ep))
     {
       if(!strcmp(ep->d_name, "." )) continue;
       if(!strcmp(ep->d_name, "..")) continue;
+      dt_log(s_log_gui, "ep->d_name: >%s, length = %ld, max length = %ld<", ep->d_name, strlen(ep->d_name), PATH_MAX);
       snprintf(filename, sizeof(filename), "%s/tags/%s", dt_pipe.homedir, ep->d_name);
       uint64_t t = fs_createtime(filename);
       if(vkdt.tag_cnt < sizeof(vkdt.tag)/sizeof(vkdt.tag[0]))
       { // add
         int i = vkdt.tag_cnt++;
-        memcpy(vkdt.tag[i], ep->d_name, sizeof(vkdt.tag[0]));
+        if ( strlen(ep->d_name) > 30 )
+        {
+          char d_name_short[30];
+          strncpy(d_name_short, ep->d_name, 30);
+          d_name_short[29] = '\0';
+          memcpy(vkdt.tag[i], d_name_short, sizeof(vkdt.tag[0]));
+        }
+        else
+          memcpy(vkdt.tag[i], ep->d_name, sizeof(vkdt.tag[0]));
         time[i] = t;
       }
       else
@@ -1002,7 +1013,15 @@ dt_gui_read_tags()
         int ii = 0;
         for(int i=1;i<vkdt.tag_cnt;i++)
           if(time[i] < time[ii]) ii = i;
-        memcpy(vkdt.tag[ii], ep->d_name, sizeof(vkdt.tag[0]));
+        if ( strlen(ep->d_name) > 30 )
+        {
+          char d_name_short[30];
+          strncpy(d_name_short, ep->d_name, 30);
+          d_name_short[29] = '\0';
+          memcpy(vkdt.tag[ii], d_name_short, sizeof(vkdt.tag[0]));
+        }
+        else
+          memcpy(vkdt.tag[ii], ep->d_name, sizeof(vkdt.tag[0]));
         time[ii] = t;
       }
     }
@@ -1010,6 +1029,12 @@ dt_gui_read_tags()
   closedir(dir);
   // sort tags alphabetically, in ugly and slow:
   qsort(vkdt.tag, vkdt.tag_cnt, sizeof(vkdt.tag[0]), (int(*)(const void*,const void*))strcmp);
+
+  dt_log(s_log_gui, "%s", "found the following tags");
+  for (int i = 0; i < vkdt.tag_cnt; i++)
+    dt_log(s_log_gui, "vkdt.tag[%d]: >%s<", i, vkdt.tag[i]);
+
+  dt_log(s_log_gui, "%s", "leaving dt_gui_read_tags");
 }
 
 void dt_gui_update_recently_used_collections()
@@ -1102,7 +1127,7 @@ void dt_gui_win1_open()
   nk_style_default(&vkdt.ctx1);
   nk_style_from_table(&vkdt.ctx1, vkdt.style.colour);
   nk_style_set_font(&vkdt.ctx1, nk_glfw3_font(0));
-  nk_glfw3_win1_open(&vkdt.ctx1, vkdt.win1.render_pass, vkdt.win1.window, 
+  nk_glfw3_win1_open(&vkdt.ctx1, vkdt.win1.render_pass, vkdt.win1.window,
       vkdt.win1.num_swap_chain_images * 2560*1024,
       vkdt.win1.num_swap_chain_images * 640*1024);
   // XXX TODO glfw callbacks for resize, close, maybe some buttons for fullscreen/close

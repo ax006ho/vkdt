@@ -239,6 +239,7 @@ int main(int argc, char *argv[])
     if(argc > lastarg+1) filename = fs_realpath(argv[lastarg+1], 0);
     else                 filename = fs_realpath(defpath, 0);
   }
+  dt_log(s_log_gui|s_log_err, "looking for %s in vkdt.db", filename);
   if(!filename || fs_isdir_file(filename))
   {
     vkdt.view_mode = -1;

@@ -266,7 +266,7 @@ void render_lighttable_center()
 
   struct nk_rect content = nk_window_get_content_region(&vkdt.ctx);
   int scroll_to = -1;
-  if(g_scroll_offset > 0) 
+  if(g_scroll_offset > 0)
     vkdt.ctx.current->scrollbar.y = g_scroll_offset;
 
   if(g_image_cursor == -2)
@@ -355,7 +355,7 @@ void render_lighttable_center()
     const int selected = vkdt.db.image[vkdt.db.collection[i]].labels & s_image_label_selected;
     if(selected) col = vkdt.style.colour[NK_COLOR_BUTTON_ACTIVE];
     // const int current  = vkdt.db.collection[i] == dt_db_current_imgid(&vkdt.db);
-    // if(current) 
+    // if(current)
     // { // can't miss this due to all the decoration shown
     //   hov = vkdt.style.colour[NK_COLOR_BUTTON];
     //   col = vkdt.style.colour[NK_COLOR_BUTTON_HOVER];
@@ -429,7 +429,7 @@ void render_lighttable_center()
       break;
     default: break;
   }
-  if(scroll_to >= 0) 
+  if(scroll_to >= 0)
     vkdt.ctx.current->scrollbar.y = scroll_to;
   g_scroll_offset = - vkdt.ctx.current->scrollbar.y; // remember
 
@@ -454,6 +454,7 @@ render_lighttable_header()
     struct nk_rect bounds = nk_widget_bounds(&vkdt.ctx);
     nk_label(&vkdt.ctx, "", 0);
     nk_style_push_font(&vkdt.ctx, nk_glfw3_font(2));
+    dt_log(s_log_gui, "vkdt.db.dirname: '%s'!", vkdt.db.dirname);
     recently_used_collections_draw(bounds, vkdt.db.dirname, &vkdt.db.collection_filter);
     nk_style_pop_font(&vkdt.ctx);
   }
@@ -674,7 +675,7 @@ void render_lighttable_right_panel()
     resi = ft->active & (1<<s_prop_rating) ? CLAMP(ft->rating, 0, 5) : 0;
     resi = nk_combo_string(ctx, "\ue836\0\ue838\0\ue838\ue838\0\ue838\ue838\ue838\0\ue838\ue838\ue838\ue838\0\ue838\ue838\ue838\ue838\ue838\0\0", resi, 0xffff, row_height, size);
 
-    if(resi != ft->rating) 
+    if(resi != ft->rating)
     {
       if(resi == 0) ft->active &= ~(1<<s_prop_rating);
       else          ft->active |=   1<<s_prop_rating ;
@@ -1192,7 +1193,7 @@ void render_lighttable_right_panel()
       {
         cmd[len-4] = '\"'; // cut away .cfg
         cmd[len-3] = 0;
-        if(len > 7 && cmd[len-7] == '_' && cmd[len-6] >= '0' && cmd[len-6] <= '9' && cmd[len-5] >= '0' && cmd[len-5] <= '9') 
+        if(len > 7 && cmd[len-7] == '_' && cmd[len-6] >= '0' && cmd[len-6] <= '9' && cmd[len-5] >= '0' && cmd[len-5] <= '9')
         { // for duplicates, for instance IMG_9999.CR2_01.cfg
           cmd[len-7] = '\"';
           cmd[len-6] = 0;
@@ -1398,7 +1399,7 @@ void render_lighttable_right_panel()
 
   // ==============================================================
   // export selection
-  if(vkdt.db.selection_cnt > 0 && nk_tree_push(ctx, NK_TREE_TAB, "export selection", 
+  if(vkdt.db.selection_cnt > 0 && nk_tree_push(ctx, NK_TREE_TAB, "export selection",
         g_hotkey == s_hotkey_export ? NK_FORCE_MAXIMIZED : NK_MINIMIZED))
   {
     static dt_export_widget_t w = {0};

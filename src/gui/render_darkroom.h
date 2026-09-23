@@ -1001,7 +1001,7 @@ render_darkroom_widget(int modid, int parid, int is_fav_menu)
     // full manual control over parameter using the slider:
     RESETBLOCK
     struct nk_rect bounds = nk_widget_bounds(ctx);
-    nk_tab_property(float, ctx, "#", -360.0f, val, 360.0f, 
+    nk_tab_property(float, ctx, "#", -360.0f, val, 360.0f,
           (360.0f)/100.0,
           (360.0f)/(0.6*vkdt.state.center_wd));
     CONSUME_SCROLL(bounds, *val, -360.0f, 360.0f, (360.0f - (-360.0f)) / 100.0f);
@@ -1541,7 +1541,7 @@ static inline void render_darkroom_widgets(
     ((struct nk_user_font *)ctx->style.font)->height = vkdt.style.fontsize;
     // bit of a crazy dance to avoid double accounting for clicks on combo boxes that just closed above us:
     const struct nk_input *in = (ctx->current->layout->flags & NK_WINDOW_ROM) ? 0 : &ctx->input;
-    if(in && nk_input_is_mouse_hovering_rect(in, box) && 
+    if(in && nk_input_is_mouse_hovering_rect(in, box) &&
         nk_input_has_mouse_click_in_button_rect(in, NK_BUTTON_LEFT, box) &&
         nk_input_is_mouse_pressed(in, NK_BUTTON_LEFT))
     {
@@ -1584,7 +1584,7 @@ static inline void render_darkroom_widgets(
   if(active) nk_style_pop_color(&vkdt.ctx);
   // bit of a crazy dance to avoid double accounting for clicks on combo boxes that just closed above us:
   const struct nk_input *in = (vkdt.ctx.current->layout->flags & NK_WINDOW_ROM) ? 0 : &ctx->input;
-  if(in && nk_input_is_mouse_hovering_rect(in, bound) && 
+  if(in && nk_input_is_mouse_hovering_rect(in, bound) &&
       nk_input_has_mouse_click_in_button_rect(in, NK_BUTTON_LEFT, bound) &&
       nk_input_is_mouse_pressed(in, NK_BUTTON_LEFT))
   {
@@ -1689,10 +1689,14 @@ error:
 static inline void
 render_darkroom_modals()
 {
+  dt_log(s_log_gui, "entering %s\n", "render_darkroom_modals");
+
   struct nk_rect bounds = { vkdt.state.center_x+0.2*vkdt.state.center_wd, vkdt.state.center_y+0.2*vkdt.state.center_ht,
     0.6*vkdt.state.center_wd, 0.6*vkdt.state.center_ht };
+  dt_log(s_log_gui, "value vkdt.wstate.popup: %ld\n", vkdt.wstate.popup);
   if(vkdt.wstate.popup == s_popup_assign_tag)
   {
+    dt_log(s_log_gui, "case: %ld\n", s_popup_assign_tag);
     if(nk_begin(&vkdt.ctx, "assign tag", bounds, NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_TITLE))
     {
       static char filter[256] = "all time best";
@@ -1704,12 +1708,14 @@ render_darkroom_modals()
         dt_db_add_to_collection(&vkdt.db, vkdt.db.current_imgid, name);
         dt_gui_read_tags();
       }
+      dt_log(s_log_gui, "found name: %s\n", name);
     }
     else vkdt.wstate.popup = 0;
     nk_end(&vkdt.ctx);
   }
   else if(vkdt.wstate.popup == s_popup_add_module)
   {
+    dt_log(s_log_gui, "case: %ld\n", s_popup_add_module);
     if(nk_begin(&vkdt.ctx, "add module", bounds, NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_TITLE))
     {
       static char mod_inst[10] = "01";
@@ -1733,8 +1739,10 @@ render_darkroom_modals()
   }
   else if(vkdt.wstate.popup == s_popup_create_preset)
   {
+    dt_log(s_log_gui, "case: %ld\n", s_popup_create_preset);
     if(nk_begin(&vkdt.ctx, "create preset", bounds, NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_TITLE))
     {
+      dt_log(s_log_gui, "case: %s\n", "create_preset");
       struct nk_rect total_space = nk_window_get_content_region(&vkdt.ctx);
       static char  preset[32] = "default";
       static char  filter[32] = "";
@@ -1779,8 +1787,10 @@ render_darkroom_modals()
           sel[i] = strstr(line[i], "param:i-") == 0 ? 1 : 0;
         }
         if(buf[s-1] == '\n') buf[s-1] = 0;
+        dt_log(s_log_gui, "current buf: %s\n", buf);
+
       }
-    
+
       const float row_height = vkdt.ctx.style.font->height + 2 * vkdt.ctx.style.tab.padding.y;
       if(ok == 0)
       {
@@ -1876,6 +1886,7 @@ render_darkroom_modals()
   }
   else if(vkdt.wstate.popup == s_popup_apply_preset)
   {
+    dt_log(s_log_gui, "case: %ld\n", s_popup_apply_preset);
     if(nk_begin(&vkdt.ctx, "apply preset", bounds, NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_TITLE))
     {
       char filename[1024] = {0};
@@ -1896,6 +1907,7 @@ render_darkroom_modals()
     else vkdt.wstate.popup = 0;
     nk_end(&vkdt.ctx);
   }
+  dt_log(s_log_gui, "leaving %s\n", "render_darkroom_modals");
 }
 
 static inline void
