@@ -228,7 +228,10 @@ lighttable_keyboard(GLFWwindow *w, int key, int scancode, int action, int mods)
 
 
 void render_lighttable_center()
-{ // center image view
+{
+  dt_log(s_log_gui, "entering %s\n", "render_lighttable_center");
+
+// center image view
   struct nk_rect bounds = {vkdt.state.center_x, vkdt.state.center_y, vkdt.state.center_wd, vkdt.state.center_ht};
   const int disabled = vkdt.wstate.popup;
   nk_style_push_style_item(&vkdt.ctx, &vkdt.ctx.style.window.fixed_background, nk_style_item_color(vkdt.style.colour[NK_COLOR_DT_BACKGROUND]));
@@ -439,12 +442,16 @@ void render_lighttable_center()
   NK_UPDATE_ACTIVE;
   nk_end(&vkdt.ctx); // lt center window
   nk_style_pop_style_item(&vkdt.ctx);
+
+  dt_log(s_log_gui, "leaving %s\n", "render_lighttable_center");
 }
 
 
 static inline void
 render_lighttable_header()
 {
+  dt_log(s_log_gui, "entering %s\n", "render_lighttable_header");
+
   nk_style_push_style_item(&vkdt.ctx, &vkdt.ctx.style.window.fixed_background, nk_style_item_hide());
   if(nk_begin(&vkdt.ctx, "lighttable header",
         nk_rect(0, 0, vkdt.state.center_wd, vkdt.state.center_y),
@@ -460,6 +467,8 @@ render_lighttable_header()
   }
   nk_end(&vkdt.ctx);
   nk_style_pop_style_item(&vkdt.ctx);
+
+  dt_log(s_log_gui, "leaving %s\n", "render_lighttable_header");
 }
 
 
@@ -1461,6 +1470,8 @@ void render_lighttable_right_panel()
 
 void render_lighttable()
 {
+  dt_log(s_log_gui, "entering %s\n", "render_lighttable");
+
   static int resize_panel = 0;
   resize_panel = dt_resize_panel(resize_panel);
 
@@ -1517,6 +1528,8 @@ void render_lighttable()
   }
   dt_menu_render(&lighttable_menu, &vkdt.ctx);
   dt_menu_process_clicks(&lighttable_menu, hk_lighttable, NK_LEN(hk_lighttable));
+
+  dt_log(s_log_gui, "entering %s\n", "render_lighttable");
 }
 
 
