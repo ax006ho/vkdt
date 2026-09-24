@@ -298,7 +298,7 @@ void joystick_callback(int js, int event);
 // exactly equivalent to direct variable access.
 static inline void
 dt_gui_content_scale(GLFWwindow *w, float *x, float *y)
-{ // these factors are only inited to content scale if the compositor cares 
+{ // these factors are only inited to content scale if the compositor cares
   // (i.e. wayland and macintosh, not x11 or windows)
   if(w == vkdt.win.window)
   {

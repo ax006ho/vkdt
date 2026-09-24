@@ -229,7 +229,7 @@ lighttable_keyboard(GLFWwindow *w, int key, int scancode, int action, int mods)
 
 void render_lighttable_center()
 {
-  dt_log(s_log_gui, "entering %s\n", "render_lighttable_center");
+  dt_log(s_log_jhf, "entering %s\n", "render_lighttable_center");
 
 // center image view
   struct nk_rect bounds = {vkdt.state.center_x, vkdt.state.center_y, vkdt.state.center_wd, vkdt.state.center_ht};
@@ -443,14 +443,14 @@ void render_lighttable_center()
   nk_end(&vkdt.ctx); // lt center window
   nk_style_pop_style_item(&vkdt.ctx);
 
-  dt_log(s_log_gui, "leaving %s\n", "render_lighttable_center");
+  dt_log(s_log_jhf, "leaving %s\n", "render_lighttable_center");
 }
 
 
 static inline void
 render_lighttable_header()
 {
-  dt_log(s_log_gui, "entering %s\n", "render_lighttable_header");
+  dt_log(s_log_jhf, "entering %s\n", "render_lighttable_header");
 
   nk_style_push_style_item(&vkdt.ctx, &vkdt.ctx.style.window.fixed_background, nk_style_item_hide());
   if(nk_begin(&vkdt.ctx, "lighttable header",
@@ -468,7 +468,7 @@ render_lighttable_header()
   nk_end(&vkdt.ctx);
   nk_style_pop_style_item(&vkdt.ctx);
 
-  dt_log(s_log_gui, "leaving %s\n", "render_lighttable_header");
+  dt_log(s_log_jhf, "leaving %s\n", "render_lighttable_header");
 }
 
 
@@ -1470,7 +1470,7 @@ void render_lighttable_right_panel()
 
 void render_lighttable()
 {
-  dt_log(s_log_gui, "entering %s\n", "render_lighttable");
+  dt_log(s_log_jhf, "entering %s\n", "render_lighttable");
 
   static int resize_panel = 0;
   resize_panel = dt_resize_panel(resize_panel);
@@ -1480,10 +1480,12 @@ void render_lighttable()
   render_lighttable_header();
 
   // popup windows
+  dt_log(s_log_jhf, "%s", "preparing popup window");
   struct nk_rect bounds = { vkdt.state.center_x+0.2*vkdt.state.center_wd, vkdt.state.center_y+0.2*vkdt.state.center_ht,
     0.6*vkdt.state.center_wd, 0.6*vkdt.state.center_ht };
   if(vkdt.wstate.popup == s_popup_assign_tag)
   {
+    dt_log(s_log_jhf, "case: %ld\n", s_popup_assign_tag);
     if(nk_begin(&vkdt.ctx, "assign tag", bounds, NK_WINDOW_NO_SCROLLBAR))
     {
       static char filter[256] = "all time best";
@@ -1504,6 +1506,7 @@ void render_lighttable()
   }
   else if(vkdt.wstate.popup == s_popup_edit_hotkeys)
   {
+    dt_log(s_log_jhf, "case: %ld\n", s_popup_edit_hotkeys);
     if(nk_begin(&vkdt.ctx, "edit lighttable hotkeys", bounds, NK_WINDOW_NO_SCROLLBAR))
     {
       int ok = hk_edit(hk_lighttable, NK_LEN(hk_lighttable));
@@ -1514,6 +1517,7 @@ void render_lighttable()
   }
   else if(vkdt.wstate.popup == s_popup_apply_preset)
   {
+    dt_log(s_log_jhf, "case: %ld\n", s_popup_apply_preset);
     if(nk_begin(&vkdt.ctx, "apply preset", bounds, NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_TITLE))
     {
       char filename[1024] = {0};
@@ -1529,7 +1533,7 @@ void render_lighttable()
   dt_menu_render(&lighttable_menu, &vkdt.ctx);
   dt_menu_process_clicks(&lighttable_menu, hk_lighttable, NK_LEN(hk_lighttable));
 
-  dt_log(s_log_gui, "entering %s\n", "render_lighttable");
+  dt_log(s_log_jhf, "leaving %s\n", "render_lighttable");
 }
 
 
