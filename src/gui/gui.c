@@ -976,7 +976,7 @@ dt_gui_write_favs(
 void
 dt_gui_read_tags()
 {
-  dt_log(s_log_gui, "%s", "entering dt_gui_read_tags");
+  dt_log(s_log_jhf, "%s", "entering dt_gui_read_tags");
   vkdt.tag_cnt = 0;
   uint64_t time[sizeof(vkdt.tag)/sizeof(vkdt.tag[0])];
   char filename[PATH_MAX+10];
@@ -986,12 +986,12 @@ dt_gui_read_tags()
   struct dirent *ep;
   while((ep = readdir(dir)))
   {
-    dt_log(s_log_gui, "filename: >%s<", filename);
+    dt_log(s_log_jhf, "filename: >%s<", filename);
     if(fs_isdir(filename, ep))
     {
       if(!strcmp(ep->d_name, "." )) continue;
       if(!strcmp(ep->d_name, "..")) continue;
-      dt_log(s_log_gui, "ep->d_name: >%s, length = %ld, max length = %ld<", ep->d_name, strlen(ep->d_name), PATH_MAX);
+      dt_log(s_log_jhf, "ep->d_name: >%s, length = %ld, max length = %ld<", ep->d_name, strlen(ep->d_name), PATH_MAX);
       snprintf(filename, sizeof(filename), "%s/tags/%s", dt_pipe.homedir, ep->d_name);
       uint64_t t = fs_createtime(filename);
       if(vkdt.tag_cnt < sizeof(vkdt.tag)/sizeof(vkdt.tag[0]))
@@ -1030,11 +1030,11 @@ dt_gui_read_tags()
   // sort tags alphabetically, in ugly and slow:
   qsort(vkdt.tag, vkdt.tag_cnt, sizeof(vkdt.tag[0]), (int(*)(const void*,const void*))strcmp);
 
-  dt_log(s_log_gui, "%s", "found the following tags");
+  dt_log(s_log_jhf, "%s", "found the following tags");
   for (int i = 0; i < vkdt.tag_cnt; i++)
-    dt_log(s_log_gui, "vkdt.tag[%d]: >%s<", i, vkdt.tag[i]);
+    dt_log(s_log_jhf, "vkdt.tag[%d]: >%s<", i, vkdt.tag[i]);
 
-  dt_log(s_log_gui, "%s", "leaving dt_gui_read_tags");
+  dt_log(s_log_jhf, "%s", "leaving dt_gui_read_tags");
 }
 
 void dt_gui_update_recently_used_collections()
