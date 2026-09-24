@@ -991,7 +991,7 @@ dt_gui_read_tags()
     {
       if(!strcmp(ep->d_name, "." )) continue;
       if(!strcmp(ep->d_name, "..")) continue;
-      dt_log(s_log_gui, "ep->d_name: >%s, length = %ld, max length = %ld<", ep->d_name, strlen(ep->d_name), PATH_MAX);
+      dt_log(s_log_gui, "ep->d_name: >%s<, length = %ld, max length = %ld", ep->d_name, strlen(ep->d_name), PATH_MAX);
       snprintf(filename, sizeof(filename), "%s/tags/%s", dt_pipe.homedir, ep->d_name);
       uint64_t t = fs_createtime(filename);
       if(vkdt.tag_cnt < sizeof(vkdt.tag)/sizeof(vkdt.tag[0]))
