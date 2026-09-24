@@ -19,7 +19,8 @@ typedef enum dt_log_mask_t
   s_log_perf = 1<<6,
   s_log_mem  = 1<<7,
   s_log_ray  = 1<<8,
-  s_log_err  = 1<<9,
+  s_log_jhf  = 1<<9,
+  s_log_err  = 1<<10,
   s_log_all  = -1ul,
 }
 dt_log_mask_t;
@@ -52,6 +53,7 @@ dt_log_init_arg(int argc, char *argv[])
     "perf",
     "mem",
     "ray",
+    "jhf",
     "err",
     "all",
   };
@@ -122,6 +124,7 @@ dt_log(
     "[perf]",
     "[mem]",
     "[ray]",
+    "[jhf]",
     "\033[31m[ERR]\033[0m",
   };
 
