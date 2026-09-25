@@ -1689,14 +1689,14 @@ error:
 static inline void
 render_darkroom_modals()
 {
-  dt_log(s_log_jhf, "entering %s\n", "render_darkroom_modals");
+  dt_log(s_log_jhf, "entering %s", "render_darkroom_modals");
 
   struct nk_rect bounds = { vkdt.state.center_x+0.2*vkdt.state.center_wd, vkdt.state.center_y+0.2*vkdt.state.center_ht,
     0.6*vkdt.state.center_wd, 0.6*vkdt.state.center_ht };
-  dt_log(s_log_jhf, "value vkdt.wstate.popup: %ld\n", vkdt.wstate.popup);
+  dt_log(s_log_jhf, "value vkdt.wstate.popup: %ld", vkdt.wstate.popup);
   if(vkdt.wstate.popup == s_popup_assign_tag)
   {
-    dt_log(s_log_jhf, "case: %ld\n", s_popup_assign_tag);
+    dt_log(s_log_jhf, "case: %ld", s_popup_assign_tag);
     if(nk_begin(&vkdt.ctx, "assign tag", bounds, NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_TITLE))
     {
       static char filter[256] = "all time best";
@@ -1708,14 +1708,14 @@ render_darkroom_modals()
         dt_db_add_to_collection(&vkdt.db, vkdt.db.current_imgid, name);
         dt_gui_read_tags();
       }
-      dt_log(s_log_jhf, "found name: %s\n", name);
+      dt_log(s_log_jhf, "found name: %s", name);
     }
     else vkdt.wstate.popup = 0;
     nk_end(&vkdt.ctx);
   }
   else if(vkdt.wstate.popup == s_popup_add_module)
   {
-    dt_log(s_log_jhf, "case: %ld\n", s_popup_add_module);
+    dt_log(s_log_jhf, "case: %ld", s_popup_add_module);
     if(nk_begin(&vkdt.ctx, "add module", bounds, NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_TITLE))
     {
       static char mod_inst[10] = "01";
@@ -1739,10 +1739,10 @@ render_darkroom_modals()
   }
   else if(vkdt.wstate.popup == s_popup_create_preset)
   {
-    dt_log(s_log_jhf, "case: %ld\n", s_popup_create_preset);
+    dt_log(s_log_jhf, "case: %ld", s_popup_create_preset);
     if(nk_begin(&vkdt.ctx, "create preset", bounds, NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_TITLE))
     {
-      dt_log(s_log_jhf, "case: %s\n", "create_preset");
+      dt_log(s_log_jhf, "case: %s", "create_preset");
       struct nk_rect total_space = nk_window_get_content_region(&vkdt.ctx);
       static char  preset[32] = "default";
       static char  filter[32] = "";
@@ -1787,7 +1787,7 @@ render_darkroom_modals()
           sel[i] = strstr(line[i], "param:i-") == 0 ? 1 : 0;
         }
         if(buf[s-1] == '\n') buf[s-1] = 0;
-        dt_log(s_log_jhf, "current buf: %s\n", buf);
+        dt_log(s_log_jhf, "current buf: %s", buf);
 
       }
 
@@ -1886,7 +1886,7 @@ render_darkroom_modals()
   }
   else if(vkdt.wstate.popup == s_popup_apply_preset)
   {
-    dt_log(s_log_jhf, "case: %ld\n", s_popup_apply_preset);
+    dt_log(s_log_jhf, "case: %ld", s_popup_apply_preset);
     if(nk_begin(&vkdt.ctx, "apply preset", bounds, NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_TITLE))
     {
       char filename[1024] = {0};
@@ -1907,7 +1907,7 @@ render_darkroom_modals()
     else vkdt.wstate.popup = 0;
     nk_end(&vkdt.ctx);
   }
-  dt_log(s_log_jhf, "leaving %s\n", "render_darkroom_modals");
+  dt_log(s_log_jhf, "leaving %s", "render_darkroom_modals");
 }
 
 static inline void
