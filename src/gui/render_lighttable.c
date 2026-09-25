@@ -1483,6 +1483,7 @@ void render_lighttable()
   dt_log(s_log_jhf, "preparing %s", "popup window");
   struct nk_rect bounds = { vkdt.state.center_x+0.2*vkdt.state.center_wd, vkdt.state.center_y+0.2*vkdt.state.center_ht,
     0.6*vkdt.state.center_wd, 0.6*vkdt.state.center_ht };
+  dt_log(s_log_jhf, "testing vkdt.wstate.popup: %ld", vkdt.wstate.popup);
   if(vkdt.wstate.popup == s_popup_assign_tag)
   {
     dt_log(s_log_jhf, "case: %ld", s_popup_assign_tag);
