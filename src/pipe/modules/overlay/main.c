@@ -114,17 +114,6 @@ void cleanup(dt_module_t *mod)
   mod->data = 0;
 }
 
-#if 0
-dt_graph_run_t
-check_params(
-    dt_module_t *module,
-    uint32_t     parid,
-    uint32_t     num,
-    void        *oldval)
-{
-}
-#endif
-
 void commit_params(dt_graph_t *graph, dt_module_t *module)
 {
   overlay_t *ov = module->data;
@@ -338,5 +327,8 @@ create_nodes(
   CONN(dt_node_connect_named(graph, id_vtx,  "vtx",  id_overlay, "vtx"));
   CONN(dt_node_connect_named(graph, id_font, "font", id_overlay, "font"));
   dt_connector_copy(graph, module, 0, id_overlay, 2);
+  graph->node[id_overlay].connector[2].flags |= s_conn_clear; // we rasterise only the glyphs, need to clear the bg
   graph->node[id_vtx].flags |= s_module_request_read_source;
+  commit_params(graph, module); // call once to init strings
+  commit_params(graph, module); // call once more to propagate to vertex counts
 }

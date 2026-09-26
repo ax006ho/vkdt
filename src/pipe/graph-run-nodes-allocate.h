@@ -13,6 +13,12 @@
 // fixed-size sub-allocator that makes aliasing in further pipeline processing
 // impossible, so it is only really useful for dynamic texture caches that go
 // directly from CPU to the consumer node.
+//
+// feedback connections: employ a double buffered resource to route previously
+// written data back as input in the next frame of an animation. the contract is:
+// * modules write straight to their double buffer index (dbuf).
+//   that also means if the s_conn_clear flag is set it clears the straight dbuf before writing.
+// * modules read with wires crossed (1-dbuf) in case of a feedback connection.
 
 static inline VkFormat
 dt_connector_vkformat(const dt_connector_t *c)
@@ -220,7 +226,7 @@ write_descriptor_sets(
         {
           int frame = MIN(f, graph->node[owner.i].connector[owner.c].frames-1);
           if(c->flags & s_conn_feedback)
-          { // feedback connections cross the frame wires:
+          { // feedback connections cross the frame wires on the input:
             frame = 1-f;
             // this should be ensured during connection:
             assert(c->frames == 2); 
@@ -323,12 +329,12 @@ bind_buffers_to_memory(
   if(!dt_connector_owner(c)) return VK_SUCCESS;
   if(f > 0 && c->frames < 2) return VK_SUCCESS; // this is just a copy, not a real double buffer
   dt_connector_image_t *img = dt_graph_connector_image(graph, node - graph->node, c - node->connector, k, f);
-  // fprintf(stderr, "conn %"PRItkn" %"PRItkn" %"PRItkn" off %ld..%ld\n",
+  VkDeviceMemory mem = img->mem->memory->vkmem;
+  // fprintf(stderr, "conn %"PRItkn" %"PRItkn" %"PRItkn" off %ld..%ld vkmem %lx\n",
   //     dt_token_str(node->module->name),
   //     dt_token_str(node->module->inst),
   //     dt_token_str(node->kernel),
-  //     img->offset, img->offset + img->size);
-  VkDeviceMemory mem = img->mem->memory->vkmem;
+  //     img->offset, img->offset + img->size, mem);
   
   if(dt_connector_ssbo(c))
   { // storage buffer
@@ -593,7 +599,7 @@ alloc_alias_memory(dt_graph_t *graph, dt_node_t *node)
       c->offset_staging[0] = c->mem_staging->offset;
       c->offset_staging[1] = need_dbuf ? c->mem_staging->offset + mem_req.size : c->mem_staging->offset;
       // fprintf(stderr, "allocing staging dbuf %d %"PRItkn"_%"PRItkn"_%"PRItkn"@%d [%ld,%ld)\n",
-      //     need_dbuf, dt_token_str(node->module->name), dt_token_str(node->kernel), dt_token_str(c->name),
+      //     need_dbuf, dt_token_str(node->module->name), dt_token_str(node->module->inst), dt_token_str(c->name),
       //     0, c->mem_staging->offset, c->mem_staging->offset + staging_size);
     }
   }
@@ -671,7 +677,7 @@ alloc_descriptor_sets(dt_graph_t *graph, dt_node_t *node)
       .range       = node->module->uniform_size ? node->module->uniform_size : graph->uniform_global_size,
     },{
       .buffer      = graph->uniform_buffer,
-      .offset      = graph->uniform_size + node->bref_size ? node->bref_offset : 0,
+      .offset      = graph->uniform_size + (node->bref_size ? node->bref_offset : 0),
       .range       = node->bref_size ? node->bref_size : graph->uniform_global_size,
     }};
     VkWriteDescriptorSet buf_dset[] = {{
@@ -1522,18 +1528,26 @@ dt_graph_run_nodes_allocate(
     for(int i=0;i<cnt;i++)
     {
       const int nid = nodeid[i];
-      int j = 0;
-      for(int f=0;f<2;f++) for(int cid=0;cid<graph->node[nid].num_connectors;cid++)
-      { // don't support ssbo arrays
-        if(dt_connector_ssbo(graph->node[nid].connector+cid))
-        {
-          dt_connector_image_t *img = dt_graph_connector_image(graph, nid, cid, 0, f);
-          VkBufferDeviceAddressInfo address_info = {
-            .sType  = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO_KHR,
-            .buffer = img->buffer,
-          };
-          int idx = (f*graph->uniform_size + graph->node[nid].bref_offset)/sizeof(uint64_t) + j++;
-          map[idx] = vkGetBufferDeviceAddress(qvk.device, &address_info);
+      for(int f=0;f<2;f++)
+      { // write both uniform blocks
+        int j = 0;
+        for(int cid=0;cid<graph->node[nid].num_connectors;cid++) // all connectors
+        { // don't support ssbo arrays
+          if(dt_connector_ssbo(graph->node[nid].connector+cid))
+          {
+            int dbuf = f;
+            if(dt_connector_input(graph->node[nid].connector+cid) &&
+                graph->node[nid].connector[cid].frames > 1 &&
+                graph->node[nid].connector[cid].flags & s_conn_feedback)
+                dbuf = 1-f;
+            dt_connector_image_t *img = dt_graph_connector_image(graph, nid, cid, 0, dbuf);
+            VkBufferDeviceAddressInfo address_info = {
+              .sType  = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO_KHR,
+              .buffer = img->buffer,
+            };
+            int idx = (f*graph->uniform_size + graph->node[nid].bref_offset)/sizeof(uint64_t) + j++;
+            map[idx] = vkGetBufferDeviceAddress(qvk.device, &address_info);
+          }
         }
       }
     }

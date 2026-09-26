@@ -8,6 +8,7 @@
 #include "db/hash.h"
 #include "db/exif.h"
 #include "core/fs.h"
+#include "core/xrand.h"
 #include "pipe/graph-defaults.h"
 #include "gui/render_view.h"
 #include "gui/hotkey.h"
@@ -1647,10 +1648,12 @@ void lighttable_gamepad(GLFWwindow *window, GLFWgamepadstate *last, GLFWgamepads
 #undef PRESSED
   const float sensitivity = vkdt.wstate.delta_time * dt_rc_get_float(&vkdt.rc, "gui/joystick_sensitivity", 1.0f);
   float ay = curr->axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
-#define SMOOTH(X) copysignf(MAX(0.0f, fabsf(X) - 0.05f), X)
-  int delta = 100*sensitivity * SMOOTH(ay); // 100 rows per second if fully extended
-  if(delta)
+  int sign = ay > 0 ? 1 : -1;
+#define SMOOTH(X) MAX(0.0f, fabsf(X) - 0.05f)
+  float df = 80*sensitivity * SMOOTH(ay); // 100 rows per second if fully extended
+  if(df > xrand()) // also move for super fast frame rates
   {
+    int delta = sign * (int)(df+1.0);
     if(g_image_cursor < 0) g_image_cursor = -2;
     else g_image_cursor = CLAMP(g_image_cursor+delta*vkdt.wstate.lighttable_images_per_row, 0, vkdt.db.collection_cnt-1);
   }
