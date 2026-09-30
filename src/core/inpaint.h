@@ -16,10 +16,12 @@ dt_inpaint_buf_t;
 
 static inline int
 dt_inpaint_unset(const dt_inpaint_buf_t *b, int i, int j)
-{ // assume empty/missing sample if first channel is zero
+{ // assume empty/missing sample if all channels are zero
   if(j < 0 || j >= b->ht) return 1;
   if(i < 0 || i >= b->wd) return 1;
-  return b->dat[b->cpp*(b->wd*j + i) + 0] == 0.0f;
+  for(int k=0;k<b->cpp;k++)
+    if(b->dat[b->cpp*(b->wd*j + i) + k] != 0.0f) return 0;
+  return 1;
 }
 
 // pull:
